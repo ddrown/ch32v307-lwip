@@ -1,0 +1,3 @@
+[submodule "CH32V307/CH32V307_LWIP_TMOS_10MPHY/CH32V307-makefile-example"]
+	path = CH32V307/CH32V307_LWIP_TMOS_10MPHY/CH32V307-makefile-example
+	url = https://github.com/ddrown/CH32V307-makefile-example.git
