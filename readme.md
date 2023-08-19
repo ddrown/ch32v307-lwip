@@ -6,6 +6,8 @@ This repository stores lwip porting and usage routines
 
 ### [CH32V307](https://github.com/ddrown/ch32v307-lwip/tree/main/CH32V307)
 
+Forked from https://github.com/smartmx/lwip_study_examples
+
 # lwip移植和使用例程
 
 本仓库存放lwip移植和使用例程
