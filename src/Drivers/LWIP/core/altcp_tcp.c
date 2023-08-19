@@ -146,7 +146,6 @@ static void
 altcp_tcp_err(void *arg, err_t err)
 {
   struct altcp_pcb *conn = (struct altcp_pcb *)arg;
-    printf("altcp_tcp_err\n");
   if (conn) {
     conn->state = NULL; /* already freed */
     if (conn->err) {

@@ -11,3 +11,5 @@ The platform-specific ethernet file is `src/Drivers/LWIP/arch/ethernetif.c`
 Connect PB8 to ELED1 (green) and PB9 to ELED2 (amber) for link and data activity LEDs on the Ethernet jack
 
 This sends ch32v307 as the DHCP hostname if your router automatically assigns it a DNS name
+
+This code is currently based on LWIP 2.1.3 & LWIP contrib 2.1.0

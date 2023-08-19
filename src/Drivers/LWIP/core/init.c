@@ -346,7 +346,7 @@ lwip_init(void)
 #if !NO_SYS
   sys_init();
 #endif /* !NO_SYS */
-  //mem_init(); /* init outside before lwip init.*/
+  //mem_init(); /* init in lwip_task.c instead */
   memp_init();
   pbuf_init();
   netif_init();
