@@ -21,6 +21,8 @@
  *
  */
 
+#include "ch32v30x_eth.h"
+#include "Debug/debug.h"
 #include "lwip_task.h"
 
 /* Globe variable */
@@ -527,8 +529,9 @@ OS_TASK(os_lwip_timeouts, void)
     OS_TASK_END(os_lwip_timeouts);
 }
 
-void ETH_IRQHandler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
-
+__attribute__((naked)) void ETH_IRQHandler() {
+    __asm volatile ("call ETH_IRQHandler_real; mret");
+}
 /*********************************************************************
  * @fn      ETH_IRQHandler
  *
@@ -536,7 +539,7 @@ void ETH_IRQHandler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
  *
  * @return  none
  */
-void ETH_IRQHandler(void)
+void ETH_IRQHandler_real(void)
 {
     void *p;
     if(ETH->DMASR&ETH_DMA_IT_R)
@@ -609,7 +612,9 @@ u32_t sys_now(void)
     return sysTicks;
 }
 
-void SysTick_Handler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
+__attribute__((naked)) void SysTick_Handler() {
+    __asm volatile ("call SysTick_Handler_real; mret");
+}
 /*********************************************************************
  * @fn      SysTick_Handler
  *
@@ -619,7 +624,7 @@ void SysTick_Handler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
  *
  * @return  None.
  */
-void SysTick_Handler(void)
+void SysTick_Handler_real(void)
 {
     sysTicks++;
     OS_UPDATE_TIMERS();
