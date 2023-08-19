@@ -452,7 +452,13 @@ a lot of data that needs to be copied, this should be set high. */
 ///**
 // * LWIP_DHCP==1: Enable DHCP module.
 // */
-//#define LWIP_DHCP                       0
+#define LWIP_DHCP                       1
+
+/**
+ * LWIP_NETIF_HOSTNAME==1: use DHCP_OPTION_HOSTNAME with netif's hostname
+ * field.
+ */
+#define LWIP_NETIF_HOSTNAME             1
 
 ///*
 //   ----------------------------------
