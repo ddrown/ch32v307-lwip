@@ -25,7 +25,7 @@
 #define _LWIP_TASK_H_
 
 #include "tiny-macro-os.h"
-#include "debug.h"
+#include "Debug/debug.h"
 #include "main.h"
 #include "string.h"
 #include <lwip/opt.h>
@@ -39,6 +39,7 @@
 #include "lwip/def.h"
 #include "lwip/timeouts.h"
 #include "ch32v30x_rng.h"
+#include "ch32v30x_eth.h"
 #include "list.h"
 #include "memb.h"
 

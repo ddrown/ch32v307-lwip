@@ -5,7 +5,8 @@
 * Date               : 2021/06/06
 * Description        : Main program body.
 *******************************************************************************/
-#include "debug.h"
+#include "Debug/debug.h"
+#include "ch32v30x_eth.h"
 #include "tiny-macro-os.h"
 #include "lwip_task.h"
 #include "main.h"
