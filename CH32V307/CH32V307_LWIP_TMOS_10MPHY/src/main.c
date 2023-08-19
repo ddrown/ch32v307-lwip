@@ -35,7 +35,7 @@ int main(void)
     SysTick->CTLR= 0xf;
 
     OS_INIT_TASKS();
-    OS_TASK_EXIT_ANOTHER(os_lwip_timeouts);     /* 超时任务等待lwip主任务启动 */
+    OS_TASK_EXIT_ANOTHER(os_lwip_timeouts);     /* The timeout task waits for the lwip master task to start / 超时任务等待lwip主任务启动 */
 
     printf("Enter main loop.\n");
     while(1)
@@ -45,10 +45,10 @@ int main(void)
     }
 }
 
-/* IP分配成功回调，用户在此增加关于网络进程的初始化函数 */
+/* IP allocation success callback, users add initialization function about network process here / IP分配成功回调，用户在此增加关于网络进程的初始化函数 */
 void lwip_init_success_callback(ip_addr_t *ip)
 {
-    printf("本地IP地址是:%ld.%ld.%ld.%ld\n\n",  \
+    printf("IP %ld.%ld.%ld.%ld\n\n",  \
         ((ip->addr)&0x000000ff),       \
         (((ip->addr)&0x0000ff00)>>8),  \
         (((ip->addr)&0x00ff0000)>>16), \
