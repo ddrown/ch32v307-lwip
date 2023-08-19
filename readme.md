@@ -1,17 +1,13 @@
-# lwip porting and use routines
-
-This repository stores lwip porting and usage routines
-
-## Currently ported
-
-### [CH32V307](https://github.com/ddrown/ch32v307-lwip/tree/main/CH32V307)
+# CH32V307 LWIP learning routine
 
 Forked from https://github.com/smartmx/lwip_study_examples
 
-# lwip移植和使用例程
+This is LWIP using the CH32V307 and it's on-chip 10M Ethernet PHY
 
-本仓库存放lwip移植和使用例程
+The the lwip configuration file `lwipopts.h` is `src/Drivers/LWIP/arch/lwipopts.h`
 
-## 目前已经移植
+The platform-specific ethernet file is `src/Drivers/LWIP/arch/ethernetif.c`
 
-### [CH32V307](https://github.com/smartmx/lwip_study_examples/tree/main/CH32V307)
+Connect PB8 to ELED1 (green) and PB9 to ELED2 (amber) for link and data activity LEDs on the Ethernet jack
+
+This sends ch32v307 as the DHCP hostname if your router automatically assigns it a DNS name
