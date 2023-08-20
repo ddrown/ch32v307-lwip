@@ -54,5 +54,5 @@ void lwip_init_success_callback(ip_addr_t *ip)
         (((ip->addr)&0x00ff0000)>>16), \
         ((ip->addr)&0xff000000)>>24);
     TCP_Echo_Init();
-    lwiperf_start_tcp_server(ip, 9527, NULL, NULL);
+    lwiperf_start_tcp_server_default(NULL, NULL);
 }
