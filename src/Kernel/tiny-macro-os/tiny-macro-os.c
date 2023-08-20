@@ -26,25 +26,35 @@
  */
 #include "tiny-macro-os.h"
 
-/* 所有任务的时间变量值，时间如果是在中断函数中更新，则时间类型必须中断安全。*/
-/* 如果时间类型非中断安全，则可以考虑使用OS_UPDATES_TIMERS(TICKS)代替OS_UPDATE_TIMERS()。*/
+/* The timer variable value of all tasks, if the timer is updated in an interrupt, the timer type must be interrupt safe / 所有任务的时间变量值，时间如果是在中断函数中更新，则时间类型必须中断安全。*/
+/* If the timer type is not interrupt safe, consider using OS_UPDATES_TIMERS(TICKS) instead of OS_UPDATE_TIMERS() / 如果时间类型非中断安全，则可以考虑使用OS_UPDATES_TIMERS(TICKS)代替OS_UPDATE_TIMERS()。*/
 volatile TINY_MACRO_OS_TIME_t OS_TIMERS[TINY_MACRO_OS_TASKS_MAX_NUM];
 
-/* 所有任务的函数运行标记值*/
+/* Function run tag value for all tasks / 所有任务的函数运行标记值*/
 volatile TINY_MACRO_OS_LINE_t OS_LINES[TINY_MACRO_OS_TASKS_MAX_NUM];
 
 /*
+MCU operation time variable type is interrupt safe
+For example, 8-bit MCU operates 8-bit data
+32-bit MCU operates 8, 16, 32-bit data
+--
 单片机操作时间变量类型是中断安全的
 比如8位单片机操作8位数据
 32位单片机操作8、16、32位数据
 void SysTick_Handler(void)
 {
-    //必须要在定时器函数中更新系统任务时钟timer，提供心跳
+    //It is necessary to update the system task clock timer in the timer function and provide heartbeat / 必须要在定时器函数中更新系统任务时钟timer，提供心跳
     OS_UPDATE_TIMERS();
 }
 */
 
 /*
+MCU operation time variable type is non-interrupt safe
+For example, 8-bit MCU operates 16 and 32-bit data
+32-bit MCU operates 64, 128-bit data
+
+Example of using OS_UPDATES_TIMERS(TICKS) for interrupt safety
+--
 单片机操作时间变量类型是非中断安全的
 比如8位单片机操作16、32位数据
 32位单片机操作64、128位数据
@@ -54,7 +64,7 @@ void SysTick_Handler(void)
 unsigned int time;
 void SysTick_Handler(void)
 {
-    time++;             //在中断中更新时间计数
+    time++;             //Update time count in interrupt / 在中断中更新时间计数
 }
 
 void tmos_test_main(void)
@@ -77,7 +87,11 @@ void tmos_test_main(void)
 }
 */
 
-/* 下面的例子可以通过更改#if 1启用，然后在程序main函数中调用tmos_test_main查看例子运行效果 */
+/* 
+The following example can be enabled by changing #if 1, and then call tmos_test_main in the main function of the program to see the running effect of the example
+--
+下面的例子可以通过更改#if 1启用，然后在程序main函数中调用tmos_test_main查看例子运行效果 
+*/
 
 #if 0 /*普通任务和带参数任务编写和OS_TASK_WAITX使用例子 */
 

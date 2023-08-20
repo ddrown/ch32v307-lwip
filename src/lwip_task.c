@@ -29,10 +29,10 @@
 LIST(ch307_mac_rec);
 MEMB(ch307_mac_rec_frame_mem, FrameTypeDef, ETH_RXBUFNB);
 
-__attribute__ ((aligned(4))) ETH_DMADESCTypeDef DMARxDscrTab[ETH_RXBUFNB];/* 接收描述符表 */
-__attribute__ ((aligned(4))) ETH_DMADESCTypeDef DMATxDscrTab[ETH_TXBUFNB];/* 发送描述符表 */
-__attribute__ ((aligned(4))) uint8_t Rx_Buff[ETH_RXBUFNB][ETH_MAX_PACKET_SIZE];/* 接收队列 */
-__attribute__ ((aligned(4))) uint8_t Tx_Buff[ETH_TXBUFNB][ETH_MAX_PACKET_SIZE];/* 发送队列 */
+__attribute__ ((aligned(4))) ETH_DMADESCTypeDef DMARxDscrTab[ETH_RXBUFNB];/* Receive ethernet packet descriptor table / 接收描述符表 */
+__attribute__ ((aligned(4))) ETH_DMADESCTypeDef DMATxDscrTab[ETH_TXBUFNB];/* Transmit ethernet packet descriptor table / 发送描述符表 */
+__attribute__ ((aligned(4))) uint8_t Rx_Buff[ETH_RXBUFNB][ETH_MAX_PACKET_SIZE];/* Receive ethernet packet data / 接收队列 */
+__attribute__ ((aligned(4))) uint8_t Tx_Buff[ETH_TXBUFNB][ETH_MAX_PACKET_SIZE];/* Transmit ethernet packet data / 发送队列 */
 
 /* extern variable */
 
@@ -152,15 +152,15 @@ OS_SUBNT(CH307_INIT_PHY, void)
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_ETH_MAC|RCC_AHBPeriph_ETH_MAC_Tx|RCC_AHBPeriph_ETH_MAC_Rx,ENABLE);
 
 #ifdef USE10BASE_T
-    /* Enable internal 10BASE-T PHY*/
-    EXTEN->EXTEN_CTR |=EXTEN_ETH_10M_EN;/* 使能10M以太网物理层   */
+    /* Enable internal 10BASE-T PHY / 使能10M以太网物理层*/
+    EXTEN->EXTEN_CTR |=EXTEN_ETH_10M_EN;
 #endif
 
 #ifdef USE_GIGA_MAC
-    /* Enable 1G MAC*/
-    EXTEN->EXTEN_CTR |= EXTEN_ETH_RGMII_SEL;/* 使能1G以太网MAC */
-    RCC_ETH1GCLKConfig(RCC_ETH1GCLKSource_PB1_IN);/* 选择外部125MHz输入 */
-    RCC_ETH1G_125Mcmd(ENABLE);/* 使能125MHz时钟 */
+    /* Enable 1G MAC / 使能1G以太网MAC */
+    EXTEN->EXTEN_CTR |= EXTEN_ETH_RGMII_SEL;
+    RCC_ETH1GCLKConfig(RCC_ETH1GCLKSource_PB1_IN);/* Select external 125MHz input / 选择外部125MHz输入 */
+    RCC_ETH1G_125Mcmd(ENABLE);/* Enable 125MHz clock / 使能125MHz时钟 */
 
     /*  Enable RGMII GPIO */
     GETH_pin_init();
@@ -229,19 +229,19 @@ OS_SUBNT(CH307_INIT_PHY, void)
     uint32_t tmpreg = 0;
     static uint16_t RegValue = 0;
 
-    /*---------------------- 物理层配置 -------------------*/
-    /* 置SMI接口时钟 ，置为主频的42分频  */
+    /*---------------------- Physical Layer Config / 物理层配置 -------------------*/
+    /* Set the SMI interface clock= main freq/42 / 置SMI接口时钟 ，置为主频的42分频  */
     tmpreg = ETH->MACMIIAR;
     tmpreg &= MACMIIAR_CR_MASK;
     tmpreg |= (uint32_t)ETH_MACMIIAR_CR_Div42;
     ETH->MACMIIAR = (uint32_t)tmpreg;
 
-    /* 复位物理层 */
-    ETH_WritePHYRegister(PHY_ADDRESS, PHY_BCR, PHY_Reset);/* 复位物理层  */
+    /* reset PHY / 复位物理层 */
+    ETH_WritePHYRegister(PHY_ADDRESS, PHY_BCR, PHY_Reset);
 
-    OS_SUBNT_WAITX(OS_SEC_TICKS / 10);/* 复位延迟  */
+    OS_SUBNT_WAITX(OS_SEC_TICKS / 10);/* wait for PHY reset / 复位延迟  */
 
-    timeout=10000;/* 最大超时十秒   */
+    timeout=10000;/* wait up to 10s for reset / 最大超时十秒   */
     RegValue = 0;
 
     OS_SUBNT_SET_STATE();
@@ -258,8 +258,8 @@ OS_SUBNT(CH307_INIT_PHY, void)
         OS_SUBNT_CWAITX(OS_SEC_TICKS / 1000);
     }
 
-    /* 等待物理层与对端建立LINK */
-    timeout=10000;/* 最大超时十秒   */
+    /* Wait for link up / 等待物理层与对端建立LINK */
+    timeout=10000; /* 10s / 最大超时十秒   */
     RegValue = 0;
 
     OS_SUBNT_SET_STATE();
@@ -276,8 +276,8 @@ OS_SUBNT(CH307_INIT_PHY, void)
         OS_SUBNT_CWAITX(OS_SEC_TICKS / 1000);
     }
 
-    /* 等待物理层完成自动协商 */
-    timeout=10000;/* 最大超时十秒   */
+    /* wait for NWAY auto-negotation / 等待物理层完成自动协商 */
+    timeout=10000;/* 10s / 最大超时十秒   */
     RegValue = 0;
 
     OS_SUBNT_SET_STATE();
@@ -318,11 +318,11 @@ OS_SUBNT(CH307_INIT_PHY, void)
 
     OS_SUBNT_WAITX(OS_SEC_TICKS / 10);
 
-    /* 点亮link状态led灯 */
+    /* link up, led on / 点亮link状态led灯 */
     Ethernet_LED_LINKSET(0);
 
-    /*------------------------ MAC寄存器配置  ----------------------- --------------------*/
-    /* MACCCR在RGMII接口模式下具有调整RGMII接口时序的域，请注意 */
+    /*------------------------ MAC config / MAC寄存器配置  ----------------------- --------------------*/
+    /* note: MACCR has a timing setting for RGMII (gigabit) / MACCCR在RGMII接口模式下具有调整RGMII接口时序的域，请注意 */
     tmpreg = ETH->MACCR;
     tmpreg &= MACCR_CLEAR_MASK;
     tmpreg |= (uint32_t)(ETH_InitStructure->ETH_Watchdog |
@@ -338,10 +338,10 @@ OS_SUBNT(CH307_INIT_PHY, void)
                     ETH_InitStructure->ETH_AutomaticPadCRCStrip |
                     ETH_InitStructure->ETH_BackOffLimit |
                     ETH_InitStructure->ETH_DeferralCheck);
-    /* 写MAC控制寄存器 */
+    /* Write MAC config / 写MAC控制寄存器 */
     ETH->MACCR = (uint32_t)tmpreg;
   #ifdef USE10BASE_T
-    ETH->MACCR|=ETH_Internal_Pull_Up_Res_Enable;/* 启用内部上拉  */
+    ETH->MACCR|=ETH_Internal_Pull_Up_Res_Enable;/* Enable internal pull-up / 启用内部上拉  */
   #endif
     ETH->MACFFR = (uint32_t)(ETH_InitStructure->ETH_ReceiveAll |
                             ETH_InitStructure->ETH_SourceAddrFilter |
@@ -420,17 +420,14 @@ uint8_t IP_ADDRESS[4];
 uint8_t NETMASK_ADDRESS[4];
 uint8_t GATEWAY_ADDRESS[4];
 
-static void wait_dhcp(void *arg);
-
-static void wait_dhcp(void *arg)
-{
-    if(ip_addr_cmp(&(WCH_NetIf.ip_addr),&ipaddr))   //等待dhcp分配的ip有效
+static void wait_dhcp(void *arg) {
+    if(ip_addr_cmp(&(WCH_NetIf.ip_addr),&ipaddr))   // Wait for DHCP config / 等待dhcp分配的ip有效
     {
         sys_timeout(50, wait_dhcp, NULL);
     }
     else
     {
-        lwip_init_success_callback(&(WCH_NetIf.ip_addr)); /* ip分配成功回调，用户在此增加关于网络进程的初始化函数 */
+        lwip_init_success_callback(&(WCH_NetIf.ip_addr)); /* notify callback about dhcp up / ip分配成功回调，用户在此增加关于网络进程的初始化函数 */
     }
 }
 
@@ -479,9 +476,10 @@ OS_TASK(os_lwip, void)
         the predefined regular intervals after starting the client.
         You can peek in the netif->dhcp struct for the actual DHCP status.*/
 
+        printf("This routine will use DHCP to dynamically assign IP addresses.\n");
         printf("本例程将使用DHCP动态分配IP地址,如果不需要则在lwipopts.h中将LWIP_DHCP定义为0\n\n");
 
-        err = dhcp_start(&WCH_NetIf);      //开启dhcp
+        err = dhcp_start(&WCH_NetIf);      // start dhcp / 开启dhcp
         if(err == ERR_OK)
         {
             printf("lwip dhcp start success...\n\n");
@@ -493,10 +491,10 @@ OS_TASK(os_lwip, void)
         sys_timeout(50, wait_dhcp, NULL);
 
 #else
-        lwip_init_success_callback(&(WCH_NetIf.ip_addr)); /*ip分配成功回调，用户在此增加关于网络进程的初始化函数*/
+        lwip_init_success_callback(&(WCH_NetIf.ip_addr)); /* notify callback about static ip / ip分配成功回调，用户在此增加关于网络进程的初始化函数*/
 
 #endif
-        OS_TASK_RESTART_ANOTHER(os_lwip_timeouts, 5);  /* 开始超时任务处理 */
+        OS_TASK_RESTART_ANOTHER(os_lwip_timeouts, 5);  /* start processing timed tasks / 开始超时任务处理 */
 
         {
             OS_TASK_SET_STATE();
@@ -505,7 +503,7 @@ OS_TASK(os_lwip, void)
                 /* received a packet */
                 ethernetif_input(&WCH_NetIf);
             }
-            OS_TASK_CWAITX(0);      /* 不断轮询有没有数据包需要处理 */
+            OS_TASK_CWAITX(0);      /* constantly poll for packets / 不断轮询有没有数据包需要处理 */
         }
     }
     else
@@ -523,7 +521,7 @@ OS_TASK(os_lwip_timeouts, void)
     {
         OS_TASK_SET_STATE();
         sys_check_timeouts();
-        OS_TASK_CWAITX(5);      /* 5ms检查一次timeouts超时 */
+        OS_TASK_CWAITX(5);      /* check again in 5ms / 5ms检查一次timeouts超时 */
     }
 
     OS_TASK_END(os_lwip_timeouts);
@@ -579,13 +577,13 @@ uint32_t CH30x_RNG_GENERATE()
         }
         if(RNG_GetFlagStatus(RNG_FLAG_CECS) == SET)
         {
-            /* 时钟错误 */
+            /* clock error / 时钟错误 */
             RNG_ClearFlag(RNG_FLAG_CECS);
             Delay_Us(100);
         }
         if(RNG_GetFlagStatus(RNG_FLAG_SECS) == SET)
         {
-            /* 种子错误 */
+            /* seed error / 种子错误 */
             RNG_ClearFlag(RNG_FLAG_SECS);
             RNG_Cmd(DISABLE);
             Delay_Us(100);
@@ -635,7 +633,8 @@ volatile uint8_t net_data_led_require = 0;
 /*********************************************************************
  * @fn      net_led_tmr
  *
- * @brief   lwip timeouts.c中period timer中增加的自定义超时函数，每NET_LED_PERIOD_MSECS周期调用
+ * @brief   Called every NET_LED_PERIOD_MSECS to set LED status
+ * lwip timeouts.c中period timer中增加的自定义超时函数，每NET_LED_PERIOD_MSECS周期调用
  *
  * @param   None.
  *
@@ -647,13 +646,13 @@ void net_led_tmr(void)
 
     if(net_data_led)
     {
-        /* 当前处在亮灯状态 */
+        /* Currently on / 当前处在亮灯状态 */
         net_data_led = 0;
         Ethernet_LED_DATASET(1);/* turn off data led. */
     }
     else
     {
-        /* 当前处在灭灯状态，如果本周期内又收到了数据包，亮灯 */
+        /* If off, another packet will turn it on / 当前处在灭灯状态，如果本周期内又收到了数据包，亮灯 */
         if(net_data_led_require != 0)
         {
             net_data_led = 1;
@@ -721,7 +720,7 @@ void* ETH_RxPkt_ChainMode(void)
     framelength = ETH_ERROR;
     printf("Error:recv error frame,status：0x%08x.\n",DMARxDescToGet->Status);
   }
-  //DMARxDescToGet->Status |= ETH_DMARxDesc_OWN;//作为未操作数据包的标志，在lwip low level input中自行处理
+  //DMARxDescToGet->Status |= ETH_DMARxDesc_OWN; //作为未操作数据包的标志，在lwip low level input中自行处理
   rec_frame->length = framelength;
   rec_frame->descriptor = DMARxDescToGet;
 
@@ -848,7 +847,7 @@ void GETH_pin_init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
 
-    /* PB12/13置为推挽复用输出 */
+    /* PB12/13 set as push-pull multiplexed output / 置为推挽复用输出 */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB|RCC_APB2Periph_GPIOC, ENABLE);
     GPIOB->CFGHR&=~(0xff<<16);
