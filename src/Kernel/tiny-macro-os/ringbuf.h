@@ -44,7 +44,7 @@
 #define _RINGBUF_H_
 
 /* add typedefinitions of your chips. */
-#include "stdint.h"
+#include <stdint.h>
 
 /* access to RINGBUF_INDEX_CONF_TYPE must be atomic. */
 #define RINGBUF_INDEX_CONF_TYPE uint8_t
