@@ -32,29 +32,8 @@
 #ifndef __CC_H__
 #define __CC_H__
 
-#include "stdio.h"
-
-#define LWIP_NO_STDINT_H  1
-
-typedef unsigned   char    u8_t;
-typedef signed     char    s8_t;
-typedef unsigned   short   u16_t;
-typedef signed     short   s16_t;
-typedef unsigned   long    u32_t;
-typedef signed     long    s32_t;
-typedef u32_t mem_ptr_t;
-typedef int sys_prot_t;
-
-
-#define U16_F "hu"
-#define S16_F "d"
-#define X16_F "hx"
-#define U32_F "u"
-#define S32_F "d"
-#define X32_F "x"
-#define SZT_F "uz"
-
-
+#include <stdio.h>
+#include <stdint.h>
 
 /* 选择小端模式 */
 #ifndef BYTE_ORDER
@@ -98,8 +77,8 @@ typedef int sys_prot_t;
 
 extern uint32_t CH30x_RNG_GENERATE();
 
-#define LWIP_RAND() ((u32_t)CH30x_RNG_GENERATE())
+#define LWIP_RAND() ((uint32_t)CH30x_RNG_GENERATE())
 
-extern u32_t sys_now(void);
+extern uint32_t sys_now(void);
 
 #endif /* __CC_H__ */
