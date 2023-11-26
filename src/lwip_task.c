@@ -25,7 +25,7 @@
 #include "Debug/debug.h"
 #include "lwip_task.h"
 
-/* Globe variable */
+/* Global variable */
 LIST(ch307_mac_rec);
 MEMB(ch307_mac_rec_frame_mem, FrameTypeDef, ETH_RXBUFNB);
 
