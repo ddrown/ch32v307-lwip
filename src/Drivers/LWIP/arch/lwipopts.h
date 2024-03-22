@@ -412,7 +412,7 @@ a lot of data that needs to be copied, this should be set high. */
 ///**
 // * LWIP_RAW==1: Enable application layer to hook into the IP layer itself.
 // */
-//#define LWIP_RAW                        0
+#define LWIP_RAW                        1
 
 ///*
 //   ----------------------------------------------
