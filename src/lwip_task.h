@@ -26,7 +26,7 @@
 
 #include "tiny-macro-os.h"
 #include "Debug/debug.h"
-#include "main.h"
+#include "lwipboardconfig.h"
 #include "string.h"
 #include <lwip/opt.h>
 #include <lwip/arch.h>
