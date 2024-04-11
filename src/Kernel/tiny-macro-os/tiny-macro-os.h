@@ -79,18 +79,22 @@ extern volatile TINY_MACRO_OS_LINE_t                OS_LINES[TINY_MACRO_OS_TASKS
 /*
  *  调度器通过使用os_task_start和os_task_end的任务函数中不可以使用switch case，但是可以通过调用函数，在另一个非任务函数中使用switch case。
  *  一定注意，下面os的宏定义不能有任何的换行修改，必须是一整行！！！！！！
+ * =====
+ * The scheduler cannot use switch case in task functions using os_task_start and os_task_end, but it can use 
+ * switch case in another non-task function by calling the function. Be sure to note that the following os macro
+ * definition cannot have any line breaks and must be a whole line! ! ! ! ! !
  */
 
-/* 任务函数声明 */
+/* 任务函数声明 / Task function declaration */
 #define OS_TASK(NAME, ...)                          TINY_MACRO_OS_TIME_t (NAME##_task)(__VA_ARGS__)
 
-/* 函数任务系统调度开始定义 */
+/* 函数任务系统调度开始定义 / Task function start */
 #define OS_TASK_START(NAME)                         enum{_task_name=NAME};switch(OS_LINES[(NAME)]){default:
 
-/* 函数任务系统调度结束定义 */
+/* 函数任务系统调度结束定义 / Task function end */
 #define OS_TASK_END(NAME)                           break;}OS_LINES[(NAME)]=0U;return (TINY_MACRO_OS_TIME_MAX)
 
-/* 运行调用任务函数，应当在主程序的while(1)里使用 */
+/* 运行调用任务函数，应当在主程序的while(1)里使用 / To run the calling task function, it should be used in while(1) of the main program. */
 #define OS_RUN_TASK(NAME, ...)                      do{if(OS_TIMERS[(NAME)]==0U){OS_TIMERS[NAME]=(NAME##_task)(__VA_ARGS__);}}while(0)
 
 /* High Priority高优先级运行任务。该任务返回的时间值不能一直为0，必须有等待时间让出使用权，不然下面的其他任务将无法继续运行，OS主循环中先写HPTASK，再写普通TASK。*/
@@ -109,16 +113,16 @@ extern volatile TINY_MACRO_OS_LINE_t                OS_LINES[TINY_MACRO_OS_TASKS
 /* 停止并且再不运行运行当前任务，复位任务状态，下一次运行从头开始，只可以在本任务中使用。 */
 #define OS_TASK_EXIT()                              do{OS_LINES[(_task_name)]=0U;}while(0);return (TINY_MACRO_OS_TIME_MAX)
 
-/* 退出当前任务，并等待对应时间，保存当前运行位置，时间单位为中断里定义的系统最小时间。 */
+/* 退出当前任务，并等待对应时间，保存当前运行位置，时间单位为中断里定义的系统最小时间。/ yield current task, wait for at least TICKS before returning to the same spot */
 #define OS_TASK_WAITX(TICKS)                        do{OS_LINES[(_task_name)]=(((TINY_MACRO_OS_LINE_t)(__LINE__)%(TINY_MACRO_OS_LINE_MAX))+1U);return(TICKS);case (((TINY_MACRO_OS_LINE_t)(__LINE__)%(TINY_MACRO_OS_LINE_MAX))+1U):;}while(0)
 
-/* 跳出当前任务，保存当前运行位置，等下一次执行时继续运行 */
+/* 跳出当前任务，保存当前运行位置，等下一次执行时继续运行 / yield current task, return here later */
 #define OS_TASK_YIELD()                             OS_TASK_WAITX(0)
 
-/* 设置函数状态 */
+/* 设置函数状态 / Set function status */
 #define OS_TASK_SET_STATE()                         do{OS_LINES[(_task_name)]=(((TINY_MACRO_OS_LINE_t)(__LINE__)%(TINY_MACRO_OS_LINE_MAX))+1U);case (((TINY_MACRO_OS_LINE_t)(__LINE__)%(TINY_MACRO_OS_LINE_MAX))+1U):;}while(0)
 
-/* 等待时间，不改变上一次函数跳转位置 */
+/* 等待时间，不改变上一次函数跳转位置 / wait for TICKS to pass, does not change start position */
 #define OS_TASK_CWAITX(TICKS)                       return (TICKS)
 
 /* 挂起当前任务 */
