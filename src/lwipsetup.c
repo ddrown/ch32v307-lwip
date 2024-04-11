@@ -1,4 +1,3 @@
-#include "lwip_task.h"
 #include "tiny-macro-os.h"
 #include "debug.h"
 #include "lwipsetup.h"
@@ -17,7 +16,3 @@ void lwip_setup() {
     OS_TASK_EXIT_ANOTHER(os_lwip_timeouts);     /* The timeout task waits for the lwip master task to start / 超时任务等待lwip主任务启动 */
 }
 
-void lwip_loop() {
-    OS_RUN_TASK(os_lwip);
-    OS_RUN_TASK(os_lwip_timeouts);
-}

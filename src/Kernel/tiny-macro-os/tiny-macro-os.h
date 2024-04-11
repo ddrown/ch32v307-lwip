@@ -28,17 +28,29 @@
 #define _TINY_MACRO_OS_H_
 
 /****TINY_MACRO_OS TASKS DECLARE**************************************************************************/
-/* 将tiny macro os任务函数的识别名字放到这里，后续使用都是从这里使用。自己每次创建任务都需要在这里添加 */
-/* 该定义方法巧妙运用了编译器的编译顺序：宏定义展开->枚举变量替换，从而实现了用一个枚举变量的名字当作OS调度的识别和操作任务参数的数组下标。 */
-/* 在任务中通过OS_TASK_START(NAME)定义，将数组下标变为局部枚举变量_task_name，实现函数内部对函数状态和时间的操作 */
-/* 如使用OS_TASK_DEFAULT，则任务函数名为OS_TASK_DEFAULT_task */
-/* ctimer为callback timer任务，如果不使用可以将其删除。 */
-enum
-{
-    os_lwip = 0,
-    os_lwip_timeouts,
-    TINY_MACRO_OS_TASKS_MAX_NUM,    /* 该选项不可删除或修改，用于计算任务数量去定义时间数组和状态数组，最大255个任务 */
-};
+/* 
+将tiny macro os任务函数的识别名字放到这里，后续使用都是从这里使用。自己每次创建任务都需要在这里添加
+该定义方法巧妙运用了编译器的编译顺序：宏定义展开->枚举变量替换，从而实现了用一个枚举变量的名字当作OS调度的识别和操作任务参数的数组下标。
+在任务中通过OS_TASK_START(NAME)定义，将数组下标变为局部枚举变量_task_name，实现函数内部对函数状态和时间的操作 
+如使用OS_TASK_DEFAULT，则任务函数名为OS_TASK_DEFAULT_task
+ctimer为callback timer任务，如果不使用可以将其删除。 
+=====
+Put the names of the tiny macro os tasks in the
+tiny-os-task.h header.  You need to add it here every
+time you create a task.  This uses the compilation
+order of the compiler: macro definition expansion ->
+enumeration variable replacement, so as to use the name
+of an enumeration variable as the array subscript of
+the OS scheduling identification and operation task
+parameters. In the task, through the OS_TASK_START
+(NAME) definition, the array subscript becomes the
+local > enumeration variable _task_name, and the
+function status and time are operated inside the
+function. If OS_TASK_DEFAULT is used, the task function
+name is OS_TASK_DEFAULT_task.
+*/
+
+#include "tiny-os-task.h"
 
 /****TINY_MACRO_OS CONFIG*********************************************************************************/
 
