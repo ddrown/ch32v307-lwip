@@ -21,6 +21,11 @@
  */
 #define NO_SYS_NO_TIMERS        0
 
+// Enable IPv6
+#define LWIP_IPV6	1
+// Needed to manage multicast groups for v6
+#define LWIP_IPV6_MLD   LWIP_IPV6
+
 /* ---------- Memory options ---------- */
 /* MEM_ALIGNMENT: should be set to the alignment of the CPU for which
    lwIP is compiled. 4 byte alignment -> define MEM_ALIGNMENT to 4, 2
@@ -49,7 +54,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define MEMP_NUM_TCP_SEG        TCP_SND_QUEUELEN
 /* MEMP_NUM_SYS_TIMEOUT: the number of simulateously active
    timeouts. */
-#define MEMP_NUM_SYS_TIMEOUT    6
+#define MEMP_NUM_SYS_TIMEOUT    9
 
 
 /* ---------- Pbuf options ---------- */

@@ -185,6 +185,80 @@ static err_t low_level_output_arp_off(struct netif *netif, struct pbuf *q, const
 }
 #endif /* LWIP_ARP */
 
+#if LWIP_IPV6_MLD
+static void ip6_to_multicast(const ip6_addr_t *group, uint8_t *mac_address) {
+    // multicast mac address is 33:33:[lowest 32 bits of v6 address]
+    mac_address[0] = 0x33;
+    mac_address[1] = 0x33;
+    memcpy(mac_address + 2, group->addr + 3, 4);
+}
+
+static uint32_t i_to_eth_mac_address(uint8_t i) {
+    switch(i) {
+        case 0:
+            return ETH_MAC_Address0;
+        case 1:
+            return ETH_MAC_Address1;
+        case 2:
+            return ETH_MAC_Address2;
+        case 3:
+            return ETH_MAC_Address3;
+        default:
+            return 0;
+    }
+}
+
+static uint8_t used_filters = 0;
+
+err_t ethernet_mld_mac_filter(struct netif *netif, const ip6_addr_t *group, enum netif_mac_filter_action action)
+{
+    uint8_t address[6];
+    ip6_to_multicast(group, address);
+
+    if (action == NETIF_DEL_MAC_FILTER) {
+        uint8_t config_mac[6];
+        for(uint8_t i = 0; i < 4; i++) {
+            if(used_filters & 1 << i) {
+                continue;
+            }
+            uint32_t eth_mac = i_to_eth_mac_address(i);
+            ETH_GetMACAddress(eth_mac, config_mac);
+            if(memcpy(address, config_mac, sizeof(address)) == 0) {
+                ETH_MACAddressPerfectFilterCmd(eth_mac, DISABLE);
+                used_filters &= ~(1 << i);
+                /*
+                 * char group_str[IP6ADDR_STRLEN_MAX];
+                 * ip6addr_ntoa_r(group, group_str, sizeof(group_str));
+                 * printf("DEBUG: removed filter %s from %d\n", group_str, i);
+                 */
+                return ERR_OK;
+            }
+        }
+        return ERR_OK;
+    }
+
+    for(uint8_t i = 0; i < 4; i++) {
+        if(used_filters & 1 << i) {
+            continue;
+        }
+        uint32_t eth_mac = i_to_eth_mac_address(i);
+        ETH_MACAddressConfig(eth_mac, address);
+        ETH_MACAddressPerfectFilterCmd(eth_mac, ENABLE);
+        used_filters |= 1 << i;
+        /*
+         * char group_str[IP6ADDR_STRLEN_MAX];
+         * ip6addr_ntoa_r(group, group_str, sizeof(group_str));
+         * printf("DEBUG: added filter %s to %d\n", group_str, i);
+         */
+        return ERR_OK;
+    }
+
+    // ran out of address filters
+    printf("DEBUG: ran out of MLD filters\n");
+    return ERR_IF;
+}
+#endif
+
 err_t ethernetif_init(struct netif *netif) {
     struct ethernetif *ethernetif;
 
@@ -222,12 +296,24 @@ err_t ethernetif_init(struct netif *netif) {
     netif->output_ip6 = ethip6_output;
 #endif /* LWIP_IPV6 */
 
+#if LWIP_IPV6_MLD
+    netif->flags |= NETIF_FLAG_MLD6;
+    netif->mld_mac_filter = ethernet_mld_mac_filter;
+#endif
+
     netif->linkoutput = low_level_output;
 
     ethernetif->ethaddr = (struct eth_addr *) & (netif->hwaddr[0]);
 
     /* initialize the hardware */
     low_level_init(netif);
+
+#if LWIP_IPV6_MLD
+    // we need to listen to the all nodes multicast address for route advertisements
+    ip6_addr_t ip6_allnodes_ll;
+    ip6_addr_set_allnodes_linklocal(&ip6_allnodes_ll);
+    netif->mld_mac_filter(netif, &ip6_allnodes_ll, NETIF_ADD_MAC_FILTER);
+#endif
 
     return ERR_OK;
 }

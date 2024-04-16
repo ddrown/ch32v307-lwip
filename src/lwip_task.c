@@ -413,9 +413,9 @@ OS_SUBNT(CH307_INIT_PHY, void)
 
 struct netif WCH_NetIf;
 
-ip4_addr_t ipaddr;
-ip4_addr_t netmask;
-ip4_addr_t gw;
+ip_addr_t ipaddr = IPADDR4_INIT(0);
+ip_addr_t netmask = IPADDR4_INIT(0);
+ip_addr_t gw = IPADDR4_INIT(0);
 uint8_t IP_ADDRESS[4];
 uint8_t NETMASK_ADDRESS[4];
 uint8_t GATEWAY_ADDRESS[4];
@@ -447,9 +447,6 @@ OS_TASK(os_lwip, void)
     printf("enable rng ok\n");
 #if LWIP_DHCP
     ip_addr_set_zero_ip4(&(WCH_NetIf.ip_addr));
-    ip_addr_set_zero_ip4(&ipaddr);
-    ip_addr_set_zero_ip4(&netmask);
-    ip_addr_set_zero_ip4(&gw);
 #else
     /* IP addresses initialization */
     IP4_ADDR(&ipaddr,192,168,123,105);
@@ -460,7 +457,7 @@ OS_TASK(os_lwip, void)
     lwip_init();
 
     /* add the network interface (IPv4/IPv6) without RTOS */
-    netif_add(&WCH_NetIf, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
+    netif_add(&WCH_NetIf, ip_2_ip4(&ipaddr), ip_2_ip4(&netmask), ip_2_ip4(&gw), NULL, &ethernetif_init, &ethernet_input);
 
     /* Registers the default network interface */
     netif_set_default(&WCH_NetIf);
@@ -476,9 +473,6 @@ OS_TASK(os_lwip, void)
         the predefined regular intervals after starting the client.
         You can peek in the netif->dhcp struct for the actual DHCP status.*/
 
-        printf("This routine will use DHCP to dynamically assign IP addresses.\n");
-        printf("本例程将使用DHCP动态分配IP地址,如果不需要则在lwipopts.h中将LWIP_DHCP定义为0\n\n");
-
         err = dhcp_start(&WCH_NetIf);      // start dhcp / 开启dhcp
         if(err == ERR_OK)
         {
@@ -488,12 +482,19 @@ OS_TASK(os_lwip, void)
         {
             printf("lwip dhcp start fail...\n\n");
         }
+        // poll for dhcp status
         sys_timeout(50, wait_dhcp, NULL);
 
 #else
         lwip_init_success_callback(&(WCH_NetIf.ip_addr)); /* notify callback about static ip / ip分配成功回调，用户在此增加关于网络进程的初始化函数*/
 
 #endif
+
+#if LWIP_IPV6
+        netif_create_ip6_linklocal_address(&WCH_NetIf, 1);
+        netif_set_ip6_autoconfig_enabled(&WCH_NetIf, 1);
+#endif
+
         OS_TASK_RESTART_ANOTHER(os_lwip_timeouts, 5);  /* start processing timed tasks / 开始超时任务处理 */
 
         {
