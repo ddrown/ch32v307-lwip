@@ -218,7 +218,8 @@ err_t ethernet_mld_mac_filter(struct netif *netif, const ip6_addr_t *group, enum
     if (action == NETIF_DEL_MAC_FILTER) {
         uint8_t config_mac[6];
         for(uint8_t i = 0; i < 4; i++) {
-            if(used_filters & 1 << i) {
+            if(!(used_filters & (1 << i))) {
+                // skip any unused filter
                 continue;
             }
             uint32_t eth_mac = i_to_eth_mac_address(i);
@@ -238,7 +239,8 @@ err_t ethernet_mld_mac_filter(struct netif *netif, const ip6_addr_t *group, enum
     }
 
     for(uint8_t i = 0; i < 4; i++) {
-        if(used_filters & 1 << i) {
+        if(used_filters & (1 << i)) {
+            // skip any used filter
             continue;
         }
         uint32_t eth_mac = i_to_eth_mac_address(i);
