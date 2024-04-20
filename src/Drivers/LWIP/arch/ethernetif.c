@@ -224,7 +224,7 @@ err_t ethernet_mld_mac_filter(struct netif *netif, const ip6_addr_t *group, enum
             }
             uint32_t eth_mac = i_to_eth_mac_address(i);
             ETH_GetMACAddress(eth_mac, config_mac);
-            if(memcpy(address, config_mac, sizeof(address)) == 0) {
+            if(memcmp(address, config_mac, sizeof(address)) == 0) {
                 ETH_MACAddressPerfectFilterCmd(eth_mac, DISABLE);
                 used_filters &= ~(1 << i);
                 /*
